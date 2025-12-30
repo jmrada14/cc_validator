@@ -25,13 +25,10 @@ use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use utoipa::{OpenApi, ToSchema, IntoParams};
+use utoipa::{IntoParams, OpenApi, ToSchema};
 use utoipa_swagger_ui::SwaggerUi;
 
-use cc_validator::{
-    validate, CardBrand,
-    format, expiry, cvv, generate, detect,
-};
+use cc_validator::{cvv, detect, expiry, format, generate, validate, CardBrand};
 
 // ============================================================================
 // OpenAPI Documentation
@@ -398,9 +395,15 @@ async fn format_card(Json(req): Json<FormatRequest>) -> Json<FormatResponse> {
     ),
     tag = "Generation"
 )]
-async fn generate_cards(Json(req): Json<GenerateRequest>) -> Result<Json<GenerateResponse>, (StatusCode, String)> {
-    let brand = parse_brand(&req.brand)
-        .ok_or_else(|| (StatusCode::BAD_REQUEST, format!("Unknown brand: {}", req.brand)))?;
+async fn generate_cards(
+    Json(req): Json<GenerateRequest>,
+) -> Result<Json<GenerateResponse>, (StatusCode, String)> {
+    let brand = parse_brand(&req.brand).ok_or_else(|| {
+        (
+            StatusCode::BAD_REQUEST,
+            format!("Unknown brand: {}", req.brand),
+        )
+    })?;
 
     let count = req.count.min(100); // Limit to 100 cards
 
@@ -572,7 +575,11 @@ async fn main() {
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     tracing::info!("Starting server on http://{}", addr);
-    tracing::info!("Swagger UI available at http://{}:{}/swagger-ui/", "localhost", port);
+    tracing::info!(
+        "Swagger UI available at http://{}:{}/swagger-ui/",
+        "localhost",
+        port
+    );
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();

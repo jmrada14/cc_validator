@@ -3,10 +3,8 @@
 //! These tests cover edge cases, real-world scenarios, and security considerations.
 
 use cc_validator::{
-    batch::BatchValidator,
-    luhn, mask, validate, validate_any, validate_digits, is_valid, passes_luhn,
-    CardBrand, ValidationError,
-    stream::ValidateExt,
+    batch::BatchValidator, is_valid, luhn, mask, passes_luhn, stream::ValidateExt, validate,
+    validate_any, validate_digits, CardBrand, ValidationError,
 };
 
 // =============================================================================
@@ -19,7 +17,7 @@ mod test_cards {
     // Visa test cards (from Stripe, Braintree, etc.)
     pub const VISA_1: &str = "4111111111111111";
     pub const VISA_2: &str = "4012888888881881";
-    pub const VISA_3: &str = "4222222222222";      // 13 digits
+    pub const VISA_3: &str = "4222222222222"; // 13 digits
     pub const VISA_4: &str = "4000056655665556";
     pub const VISA_5: &str = "4242424242424242";
     pub const VISA_DEBIT: &str = "4000056655665556";
@@ -52,7 +50,6 @@ mod test_cards {
     // JCB test cards
     pub const JCB_1: &str = "3530111333300000";
     pub const JCB_2: &str = "3566002020360505";
-
 }
 
 // =============================================================================
@@ -70,7 +67,12 @@ fn test_all_visa_test_cards() {
         test_cards::VISA_DEBIT,
     ] {
         let result = validate(card);
-        assert!(result.is_ok(), "Visa card {} should be valid: {:?}", card, result);
+        assert!(
+            result.is_ok(),
+            "Visa card {} should be valid: {:?}",
+            card,
+            result
+        );
         assert_eq!(result.unwrap().brand(), CardBrand::Visa);
     }
 }
@@ -86,7 +88,12 @@ fn test_all_mastercard_test_cards() {
         test_cards::MC_2SERIES_2,
     ] {
         let result = validate(card);
-        assert!(result.is_ok(), "Mastercard {} should be valid: {:?}", card, result);
+        assert!(
+            result.is_ok(),
+            "Mastercard {} should be valid: {:?}",
+            card,
+            result
+        );
         assert_eq!(result.unwrap().brand(), CardBrand::Mastercard);
     }
 }
@@ -100,7 +107,12 @@ fn test_all_amex_test_cards() {
         test_cards::AMEX_CORPORATE,
     ] {
         let result = validate(card);
-        assert!(result.is_ok(), "Amex card {} should be valid: {:?}", card, result);
+        assert!(
+            result.is_ok(),
+            "Amex card {} should be valid: {:?}",
+            card,
+            result
+        );
         let validated = result.unwrap();
         assert_eq!(validated.brand(), CardBrand::Amex);
         assert_eq!(validated.length(), 15);
@@ -115,7 +127,12 @@ fn test_all_discover_test_cards() {
         test_cards::DISCOVER_3,
     ] {
         let result = validate(card);
-        assert!(result.is_ok(), "Discover card {} should be valid: {:?}", card, result);
+        assert!(
+            result.is_ok(),
+            "Discover card {} should be valid: {:?}",
+            card,
+            result
+        );
         assert_eq!(result.unwrap().brand(), CardBrand::Discover);
     }
 }
@@ -128,7 +145,12 @@ fn test_all_diners_test_cards() {
         test_cards::DINERS_3,
     ] {
         let result = validate(card);
-        assert!(result.is_ok(), "Diners card {} should be valid: {:?}", card, result);
+        assert!(
+            result.is_ok(),
+            "Diners card {} should be valid: {:?}",
+            card,
+            result
+        );
         assert_eq!(result.unwrap().brand(), CardBrand::DinersClub);
     }
 }
@@ -137,7 +159,12 @@ fn test_all_diners_test_cards() {
 fn test_all_jcb_test_cards() {
     for card in [test_cards::JCB_1, test_cards::JCB_2] {
         let result = validate(card);
-        assert!(result.is_ok(), "JCB card {} should be valid: {:?}", card, result);
+        assert!(
+            result.is_ok(),
+            "JCB card {} should be valid: {:?}",
+            card,
+            result
+        );
         assert_eq!(result.unwrap().brand(), CardBrand::Jcb);
     }
 }
@@ -153,7 +180,7 @@ fn test_various_separators() {
     // Spaces
     assert!(validate("4111 1111 1111 1111").is_ok());
     assert!(validate("4111  1111  1111  1111").is_ok()); // Double spaces
-    assert!(validate(" 4111111111111111 ").is_ok());     // Leading/trailing
+    assert!(validate(" 4111111111111111 ").is_ok()); // Leading/trailing
 
     // Dashes
     assert!(validate("4111-1111-1111-1111").is_ok());
@@ -199,9 +226,16 @@ fn test_invalid_characters() {
     for (input, expected_char, expected_pos) in test_cases {
         let result = validate(input);
         match result {
-            Err(ValidationError::InvalidCharacter { character, position }) => {
+            Err(ValidationError::InvalidCharacter {
+                character,
+                position,
+            }) => {
                 assert_eq!(character, expected_char, "Wrong char for input: {}", input);
-                assert_eq!(position, expected_pos, "Wrong position for input: {}", input);
+                assert_eq!(
+                    position, expected_pos,
+                    "Wrong position for input: {}",
+                    input
+                );
             }
             other => panic!("Expected InvalidCharacter for '{}', got {:?}", input, other),
         }
@@ -217,7 +251,10 @@ fn test_minimum_length_boundary() {
     // 11 digits - too short
     assert!(matches!(
         validate("41111111118"),
-        Err(ValidationError::TooShort { length: 11, minimum: 12 })
+        Err(ValidationError::TooShort {
+            length: 11,
+            minimum: 12
+        })
     ));
 
     // 12 digits - minimum valid (Maestro)
@@ -241,7 +278,10 @@ fn test_maximum_length_boundary() {
     assert_eq!(twenty.len(), 20);
     assert!(matches!(
         validate(twenty),
-        Err(ValidationError::TooLong { length: 20, maximum: 19 })
+        Err(ValidationError::TooLong {
+            length: 20,
+            maximum: 19
+        })
     ));
 }
 
@@ -256,7 +296,11 @@ fn test_brand_specific_lengths() {
     assert!(
         matches!(
             result,
-            Err(ValidationError::InvalidLengthForBrand { brand: CardBrand::Visa, length: 14, .. })
+            Err(ValidationError::InvalidLengthForBrand {
+                brand: CardBrand::Visa,
+                length: 14,
+                ..
+            })
         ),
         "Expected InvalidLengthForBrand for Visa with 14 digits, got {:?}",
         result
@@ -271,7 +315,11 @@ fn test_brand_specific_lengths() {
         assert!(
             matches!(
                 result,
-                Err(ValidationError::InvalidLengthForBrand { brand: CardBrand::Amex, length: 16, .. })
+                Err(ValidationError::InvalidLengthForBrand {
+                    brand: CardBrand::Amex,
+                    length: 16,
+                    ..
+                })
             ),
             "Expected InvalidLengthForBrand for Amex with 16 digits, got {:?}",
             result
@@ -286,7 +334,11 @@ fn test_brand_specific_lengths() {
         assert!(
             matches!(
                 result,
-                Err(ValidationError::InvalidLengthForBrand { brand: CardBrand::Mastercard, length: 15, .. })
+                Err(ValidationError::InvalidLengthForBrand {
+                    brand: CardBrand::Mastercard,
+                    length: 15,
+                    ..
+                })
             ),
             "Expected InvalidLengthForBrand for MC with 15 digits, got {:?}",
             result
@@ -307,7 +359,9 @@ fn test_luhn_single_digit_change() {
         let mut chars: Vec<char> = valid.chars().collect();
         let original = chars[i];
         // Change to a different digit
-        chars[i] = if original == '9' { '0' } else {
+        chars[i] = if original == '9' {
+            '0'
+        } else {
             char::from_digit(original.to_digit(10).unwrap() + 1, 10).unwrap()
         };
         let modified: String = chars.into_iter().collect();
@@ -315,7 +369,9 @@ fn test_luhn_single_digit_change() {
         assert!(
             !is_valid(&modified),
             "Changing digit {} from {} should invalidate: {}",
-            i, original, modified
+            i,
+            original,
+            modified
         );
     }
 }
@@ -350,7 +406,11 @@ fn test_luhn_check_digit_generation() {
         // Verify the full number is valid
         let mut full = partial.to_vec();
         full.push(check);
-        assert!(luhn::validate(&full), "Full number should be valid: {:?}", full);
+        assert!(
+            luhn::validate(&full),
+            "Full number should be valid: {:?}",
+            full
+        );
     }
 }
 
@@ -410,23 +470,50 @@ fn test_error_messages_are_helpful() {
 
     let err = validate("").unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("empty"), "Empty error should mention 'empty': {}", msg);
+    assert!(
+        msg.contains("empty"),
+        "Empty error should mention 'empty': {}",
+        msg
+    );
 
     let err = validate("4111111111").unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("short"), "TooShort should mention 'short': {}", msg);
-    assert!(msg.contains("10"), "TooShort should mention actual length: {}", msg);
-    assert!(msg.contains("12"), "TooShort should mention minimum: {}", msg);
+    assert!(
+        msg.contains("short"),
+        "TooShort should mention 'short': {}",
+        msg
+    );
+    assert!(
+        msg.contains("10"),
+        "TooShort should mention actual length: {}",
+        msg
+    );
+    assert!(
+        msg.contains("12"),
+        "TooShort should mention minimum: {}",
+        msg
+    );
 
     let err = validate("4111111111111111x").unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("x"), "InvalidCharacter should show the character: {}", msg);
-    assert!(msg.contains("16"), "InvalidCharacter should show position: {}", msg);
+    assert!(
+        msg.contains("x"),
+        "InvalidCharacter should show the character: {}",
+        msg
+    );
+    assert!(
+        msg.contains("16"),
+        "InvalidCharacter should show position: {}",
+        msg
+    );
 
     let err = validate("4111111111111112").unwrap_err();
     let msg = err.to_string();
-    assert!(msg.contains("checksum") || msg.contains("Luhn"),
-            "InvalidChecksum should mention checksum: {}", msg);
+    assert!(
+        msg.contains("checksum") || msg.contains("Luhn"),
+        "InvalidChecksum should mention checksum: {}",
+        msg
+    );
 }
 
 // =============================================================================
@@ -451,14 +538,26 @@ fn test_masking_never_exposes_full_number() {
 
         // Full number should never appear
         let clean_number: String = card_str.chars().filter(|c| c.is_ascii_digit()).collect();
-        assert!(!masked.contains(&clean_number),
-                "masked() exposed full number for {}", card_str);
-        assert!(!masked_bin.contains(&clean_number),
-                "masked_with_bin() exposed full number for {}", card_str);
-        assert!(!debug.contains(&clean_number),
-                "Debug exposed full number for {}", card_str);
-        assert!(!display.contains(&clean_number),
-                "Display exposed full number for {}", card_str);
+        assert!(
+            !masked.contains(&clean_number),
+            "masked() exposed full number for {}",
+            card_str
+        );
+        assert!(
+            !masked_bin.contains(&clean_number),
+            "masked_with_bin() exposed full number for {}",
+            card_str
+        );
+        assert!(
+            !debug.contains(&clean_number),
+            "Debug exposed full number for {}",
+            card_str
+        );
+        assert!(
+            !display.contains(&clean_number),
+            "Display exposed full number for {}",
+            card_str
+        );
     }
 }
 
@@ -504,11 +603,17 @@ fn test_constant_time_eq_correctness() {
     // Equal strings
     assert!(mask::constant_time_eq(b"hello", b"hello"));
     assert!(mask::constant_time_eq(b"", b""));
-    assert!(mask::constant_time_eq(b"4111111111111111", b"4111111111111111"));
+    assert!(mask::constant_time_eq(
+        b"4111111111111111",
+        b"4111111111111111"
+    ));
 
     // Unequal strings - different content
     assert!(!mask::constant_time_eq(b"hello", b"world"));
-    assert!(!mask::constant_time_eq(b"4111111111111111", b"4111111111111112"));
+    assert!(!mask::constant_time_eq(
+        b"4111111111111111",
+        b"4111111111111112"
+    ));
 
     // Unequal strings - different length
     assert!(!mask::constant_time_eq(b"hello", b"hello!"));
@@ -552,11 +657,11 @@ fn test_batch_preserves_order() {
 #[test]
 fn test_batch_partitioned_indices() {
     let cards = vec![
-        test_cards::VISA_1,     // 0 - valid
-        "bad1",                  // 1 - invalid
-        test_cards::MC_1,       // 2 - valid
-        "bad2",                  // 3 - invalid
-        "bad3",                  // 4 - invalid
+        test_cards::VISA_1, // 0 - valid
+        "bad1",             // 1 - invalid
+        test_cards::MC_1,   // 2 - valid
+        "bad2",             // 3 - invalid
+        "bad3",             // 4 - invalid
     ];
 
     let mut batch = BatchValidator::new();
@@ -628,7 +733,10 @@ fn test_empty_and_whitespace_only() {
     assert!(matches!(validate(""), Err(ValidationError::Empty)));
     assert!(matches!(validate("   "), Err(ValidationError::NoDigits)));
     assert!(matches!(validate("---"), Err(ValidationError::NoDigits)));
-    assert!(matches!(validate(" - . - "), Err(ValidationError::NoDigits)));
+    assert!(matches!(
+        validate(" - . - "),
+        Err(ValidationError::NoDigits)
+    ));
 }
 
 #[test]
@@ -747,8 +855,12 @@ fn test_mastercard_2_series_detection() {
 
     for card in mc_2series {
         if let Ok(validated) = validate(card) {
-            assert_eq!(validated.brand(), CardBrand::Mastercard,
-                      "2-series card {} should be Mastercard", card);
+            assert_eq!(
+                validated.brand(),
+                CardBrand::Mastercard,
+                "2-series card {} should be Mastercard",
+                card
+            );
         }
         // Some might fail Luhn, that's OK
     }

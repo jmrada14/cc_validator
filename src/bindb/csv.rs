@@ -63,8 +63,8 @@ impl CsvBinLoader {
         let mut db = MemoryBinDb::new();
 
         for result in csv_reader.records() {
-            let record = result
-                .map_err(|e| BinDbError::ParseError(format!("CSV parse error: {}", e)))?;
+            let record =
+                result.map_err(|e| BinDbError::ParseError(format!("CSV parse error: {}", e)))?;
 
             if let Some(info) = col_map.parse_record(&record) {
                 let bin = info.bin.clone();
@@ -109,8 +109,8 @@ impl CsvBinLoader {
         let mut db = MemoryBinDb::new();
 
         for result in csv_reader.records() {
-            let record = result
-                .map_err(|e| BinDbError::ParseError(format!("CSV parse error: {}", e)))?;
+            let record =
+                result.map_err(|e| BinDbError::ParseError(format!("CSV parse error: {}", e)))?;
 
             if let Some(info) = col_map.parse_record(&record) {
                 let bin = info.bin.clone();
@@ -269,9 +269,9 @@ impl SimpleCsvLoader {
             .position(|h| h.eq_ignore_ascii_case("bin"))
             .ok_or_else(|| BinDbError::ParseError("Missing 'bin' column".to_string()))?;
 
-        let issuer_idx = headers.iter().position(|h| {
-            h.eq_ignore_ascii_case("issuer") || h.eq_ignore_ascii_case("bank")
-        });
+        let issuer_idx = headers
+            .iter()
+            .position(|h| h.eq_ignore_ascii_case("issuer") || h.eq_ignore_ascii_case("bank"));
 
         let country_idx = headers.iter().position(|h| {
             h.eq_ignore_ascii_case("country") || h.eq_ignore_ascii_case("country_code")

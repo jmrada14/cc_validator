@@ -74,13 +74,13 @@ fn main() {
 
     // Various expiry date formats
     let expiry_formats = [
-        "12/25",    // MM/YY
-        "12/2025",  // MM/YYYY
-        "1225",     // MMYY
-        "12-25",    // MM-YY
-        "12 25",    // MM YY
-        "01/30",    // Future date
-        "12/20",    // Past date (will be rejected by validate_expiry)
+        "12/25",   // MM/YY
+        "12/2025", // MM/YYYY
+        "1225",    // MMYY
+        "12-25",   // MM-YY
+        "12 25",   // MM YY
+        "01/30",   // Future date
+        "12/20",   // Past date (will be rejected by validate_expiry)
     ];
 
     println!("Expiry date validation (rejects expired):");
@@ -113,13 +113,7 @@ fn main() {
                 } else {
                     format!("valid for {} more months", exp.months_until_expiry())
                 };
-                println!(
-                    "  '{}': {}/{} - {}",
-                    date,
-                    exp.month(),
-                    exp.year(),
-                    status
-                );
+                println!("  '{}': {}/{} - {}", date, exp.month(), exp.year(), status);
             }
             Err(e) => {
                 println!("  '{}': Parse error - {}", date, e);

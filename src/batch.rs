@@ -68,10 +68,7 @@ impl BatchValidator {
     /// # Arguments
     ///
     /// * `cards` - Slice of card number strings to validate.
-    pub fn validate_valid_only<S: AsRef<str>>(
-        &mut self,
-        cards: &[S],
-    ) -> Vec<ValidatedCard> {
+    pub fn validate_valid_only<S: AsRef<str>>(&mut self, cards: &[S]) -> Vec<ValidatedCard> {
         cards
             .iter()
             .filter_map(|c| validate(c.as_ref()).ok())
@@ -297,9 +294,7 @@ mod tests {
     #[test]
     fn test_parallel_validation() {
         let mut batch = BatchValidator::new();
-        let cards: Vec<String> = (0..1000)
-            .map(|_| VALID_VISA.to_string())
-            .collect();
+        let cards: Vec<String> = (0..1000).map(|_| VALID_VISA.to_string()).collect();
 
         let results = batch.validate_parallel(&cards);
         assert_eq!(results.len(), 1000);

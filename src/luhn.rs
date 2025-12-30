@@ -217,26 +217,18 @@ mod tests {
     fn test_valid_cards() {
         // Visa test cards
         assert!(validate(&[4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]));
-        assert!(validate(&[
-            4, 0, 1, 2, 8, 8, 8, 8, 8, 8, 8, 8, 1, 8, 8, 1
-        ]));
+        assert!(validate(&[4, 0, 1, 2, 8, 8, 8, 8, 8, 8, 8, 8, 1, 8, 8, 1]));
 
         // Mastercard test card
-        assert!(validate(&[
-            5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
-        ]));
-        assert!(validate(&[
-            5, 1, 0, 5, 1, 0, 5, 1, 0, 5, 1, 0, 5, 1, 0, 0
-        ]));
+        assert!(validate(&[5, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4]));
+        assert!(validate(&[5, 1, 0, 5, 1, 0, 5, 1, 0, 5, 1, 0, 5, 1, 0, 0]));
 
         // Amex test card
         assert!(validate(&[3, 7, 8, 2, 8, 2, 2, 4, 6, 3, 1, 0, 0, 0, 5]));
         assert!(validate(&[3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]));
 
         // Discover test card
-        assert!(validate(&[
-            6, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7
-        ]));
+        assert!(validate(&[6, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7]));
 
         // Diners Club
         assert!(validate(&[3, 0, 5, 6, 9, 3, 0, 9, 0, 2, 5, 9, 0, 4]));
@@ -245,14 +237,10 @@ mod tests {
     #[test]
     fn test_invalid_cards() {
         // Changed last digit
-        assert!(!validate(&[
-            4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2
-        ]));
+        assert!(!validate(&[4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]));
 
         // Changed first digit
-        assert!(!validate(&[
-            5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-        ]));
+        assert!(!validate(&[5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]));
 
         // Random invalid
         assert!(!validate(&[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6]));

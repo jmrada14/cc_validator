@@ -40,7 +40,12 @@ fn main() {
     println!("Quick validation checks:");
     for (number, description) in test_cards {
         let valid = is_valid(number);
-        println!("  {} - {}: {}", number, description, if valid { "VALID" } else { "INVALID" });
+        println!(
+            "  {} - {}: {}",
+            number,
+            description,
+            if valid { "VALID" } else { "INVALID" }
+        );
     }
     println!();
 
@@ -95,7 +100,11 @@ fn main() {
     ];
 
     for brand in brands {
-        let lengths: Vec<String> = brand.valid_lengths().iter().map(|l| l.to_string()).collect();
+        let lengths: Vec<String> = brand
+            .valid_lengths()
+            .iter()
+            .map(|l| l.to_string())
+            .collect();
         println!(
             "  {:12} - Lengths: {:15} CVV: {} digits",
             brand.name(),

@@ -259,7 +259,10 @@ mod tests {
     #[test]
     fn test_constant_time_eq_str() {
         assert!(constant_time_eq_str("4111111111111111", "4111111111111111"));
-        assert!(!constant_time_eq_str("4111111111111111", "4111111111111112"));
+        assert!(!constant_time_eq_str(
+            "4111111111111111",
+            "4111111111111112"
+        ));
     }
 
     #[test]

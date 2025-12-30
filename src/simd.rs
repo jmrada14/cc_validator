@@ -143,7 +143,10 @@ pub fn validate_simd(digits: &[u8]) -> bool {
 /// when the `simd` feature is not enabled.
 #[cfg(not(feature = "simd"))]
 pub fn validate_batch_simd(cards: &[&[u8]]) -> Vec<bool> {
-    cards.iter().map(|digits| crate::luhn::validate(digits)).collect()
+    cards
+        .iter()
+        .map(|digits| crate::luhn::validate(digits))
+        .collect()
 }
 
 #[cfg(test)]

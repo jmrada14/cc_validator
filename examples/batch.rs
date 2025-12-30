@@ -26,10 +26,7 @@ fn main() {
     // Get all results
     let results = batch.validate_all(&cards);
     println!("  Total cards: {}", results.len());
-    println!(
-        "  Valid: {}",
-        results.iter().filter(|r| r.is_ok()).count()
-    );
+    println!("  Valid: {}", results.iter().filter(|r| r.is_ok()).count());
     println!(
         "  Invalid: {}",
         results.iter().filter(|r| r.is_err()).count()
@@ -65,7 +62,12 @@ fn main() {
     println!("  All results (streaming):");
     for (i, result) in all_results.iter().enumerate() {
         match result {
-            Ok(card) => println!("    [{}] Valid: {} - {}", i, card.masked(), card.brand().name()),
+            Ok(card) => println!(
+                "    [{}] Valid: {} - {}",
+                i,
+                card.masked(),
+                card.brand().name()
+            ),
             Err(e) => println!("    [{}] Invalid: {}", i, e),
         }
     }
@@ -98,11 +100,7 @@ fn main() {
     let (count, _) = batch::count_valid(&large_dataset);
     let elapsed = start.elapsed();
 
-    println!(
-        "  Validated {} cards in {:?}",
-        large_dataset.len(),
-        elapsed
-    );
+    println!("  Validated {} cards in {:?}", large_dataset.len(), elapsed);
     println!("  Valid: {}", count);
     println!(
         "  Rate: {:.2} cards/sec",

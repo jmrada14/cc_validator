@@ -3,12 +3,12 @@
 //! These tests verify invariants that should hold for all inputs,
 //! helping discover edge cases that manual tests might miss.
 
-use proptest::prelude::*;
 use cc_validator::{
-    validate, is_valid, passes_luhn, CardBrand,
-    luhn, format, mask, expiry, cvv,
+    cvv, expiry, format,
     generate::{generate_card_deterministic, CardGenerator},
+    is_valid, luhn, mask, passes_luhn, validate, CardBrand,
 };
+use proptest::prelude::*;
 
 // =============================================================================
 // STRATEGIES
@@ -42,14 +42,8 @@ fn digit_string_range(range: std::ops::RangeInclusive<usize>) -> impl Strategy<V
 fn card_with_separators(card: String) -> impl Strategy<Value = String> {
     let len = card.len();
     proptest::collection::vec(
-        prop_oneof![
-            Just(""),
-            Just(" "),
-            Just("-"),
-            Just("  "),
-            Just(" - "),
-        ],
-        len + 1
+        prop_oneof![Just(""), Just(" "), Just("-"), Just("  "), Just(" - "),],
+        len + 1,
     )
     .prop_map(move |seps| {
         let mut result = String::new();

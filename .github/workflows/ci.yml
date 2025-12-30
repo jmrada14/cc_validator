@@ -94,9 +94,10 @@ jobs:
       # Only check core features:
       # - server requires tokio 1.71+
       # - wasm requires wasm-bindgen-macro 1.71+
+      # - cli requires clap 1.74+
       # - bin-sqlite may have version constraints
       - name: Check MSRV
-        run: cargo check --features "bin-json,bin-csv,parallel,generate,cli"
+        run: cargo check --features "bin-json,bin-csv,parallel,generate"
 
   wasm:
     name: WASM Build

@@ -76,7 +76,7 @@ pub fn detect_brand(digits: &[u8]) -> Option<CardBrand> {
         [5, 0, 6..=7, ..] => Some(CardBrand::Verve),
 
         // Elo (Brazil): 509, 6362, 6363 (must be before Maestro 50x)
-        [5, 0, 9, ..] => Some(CardBrand::Elo),       // 509xxx
+        [5, 0, 9, ..] => Some(CardBrand::Elo), // 509xxx
 
         // Maestro: 50 (except 506, 507, 509), 56-58
         [5, 0, ..] => Some(CardBrand::Maestro),

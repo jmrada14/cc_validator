@@ -349,10 +349,7 @@ mod tests {
 
     #[test]
     fn test_with_string_vec() {
-        let cards: Vec<String> = vec![
-            VALID_VISA.to_string(),
-            VALID_MC.to_string(),
-        ];
+        let cards: Vec<String> = vec![VALID_VISA.to_string(), VALID_MC.to_string()];
 
         let results: Vec<_> = cards.iter().validate_cards().collect();
         assert!(results.iter().all(|r| r.is_ok()));

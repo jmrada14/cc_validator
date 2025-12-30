@@ -383,8 +383,14 @@ mod tests {
     #[test]
     fn test_invalid_format() {
         assert!(matches!(parse_expiry(""), Err(ExpiryError::Empty)));
-        assert!(matches!(parse_expiry("abc"), Err(ExpiryError::InvalidFormat)));
-        assert!(matches!(parse_expiry("1/2/3"), Err(ExpiryError::InvalidFormat)));
+        assert!(matches!(
+            parse_expiry("abc"),
+            Err(ExpiryError::InvalidFormat)
+        ));
+        assert!(matches!(
+            parse_expiry("1/2/3"),
+            Err(ExpiryError::InvalidFormat)
+        ));
     }
 
     #[test]

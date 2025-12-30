@@ -25,8 +25,8 @@
 //! assert_eq!(format_with_separator("4111111111111111", "-"), "4111-1111-1111-1111");
 //! ```
 
-use crate::CardBrand;
 use crate::detect::detect_brand;
+use crate::CardBrand;
 
 /// Formats a credit card number with standard grouping.
 ///
@@ -64,10 +64,7 @@ pub fn format_with_separator(input: &str, separator: &str) -> String {
     }
 
     // Detect brand to determine grouping
-    let digit_values: Vec<u8> = digits
-        .iter()
-        .map(|&c| (c as u8) - b'0')
-        .collect();
+    let digit_values: Vec<u8> = digits.iter().map(|&c| (c as u8) - b'0').collect();
     let brand = detect_brand(&digit_values);
 
     // Get grouping pattern
@@ -295,7 +292,9 @@ pub fn split_into_groups(input: &str) -> Vec<String> {
 /// assert!(!is_valid_format("4111a1111-1111-1111"));
 /// ```
 pub fn is_valid_format(input: &str) -> bool {
-    input.chars().all(|c| c.is_ascii_digit() || c == ' ' || c == '-' || c == '.')
+    input
+        .chars()
+        .all(|c| c.is_ascii_digit() || c == ' ' || c == '-' || c == '.')
 }
 
 #[cfg(test)]
@@ -312,26 +311,17 @@ mod tests {
 
     #[test]
     fn test_format_visa_13() {
-        assert_eq!(
-            format_card_number("4222222222222"),
-            "4222 2222 2222 2"
-        );
+        assert_eq!(format_card_number("4222222222222"), "4222 2222 2222 2");
     }
 
     #[test]
     fn test_format_amex() {
-        assert_eq!(
-            format_card_number("378282246310005"),
-            "3782 822463 10005"
-        );
+        assert_eq!(format_card_number("378282246310005"), "3782 822463 10005");
     }
 
     #[test]
     fn test_format_diners_14() {
-        assert_eq!(
-            format_card_number("30569309025904"),
-            "3056 930902 5904"
-        );
+        assert_eq!(format_card_number("30569309025904"), "3056 930902 5904");
     }
 
     #[test]

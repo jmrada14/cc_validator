@@ -96,7 +96,10 @@ impl fmt::Display for ValidationError {
             }
 
             Self::InvalidChecksum => {
-                write!(f, "invalid checksum (Luhn check failed) - please verify the card number")
+                write!(
+                    f,
+                    "invalid checksum (Luhn check failed) - please verify the card number"
+                )
             }
 
             Self::InvalidLengthForBrand {
@@ -104,8 +107,7 @@ impl fmt::Display for ValidationError {
                 length,
                 valid_lengths,
             } => {
-                let valid_str: Vec<String> =
-                    valid_lengths.iter().map(|l| l.to_string()).collect();
+                let valid_str: Vec<String> = valid_lengths.iter().map(|l| l.to_string()).collect();
                 write!(
                     f,
                     "{:?} cards must have {} digits, got {}",

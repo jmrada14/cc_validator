@@ -94,7 +94,9 @@ fn main() {
     println!();
 
     // Amex partial formatting (4-6-5 grouping)
-    let amex_partial = ["3", "37", "378", "3782", "37828", "378282", "3782822", "37828224"];
+    let amex_partial = [
+        "3", "37", "378", "3782", "37828", "378282", "3782822", "37828224",
+    ];
 
     println!("  Simulating typing an Amex card:");
     for input in amex_partial {

@@ -206,7 +206,6 @@ impl fmt::Display for CardType {
     }
 }
 
-
 /// Card level/tier indicating benefits and status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "bin-json", derive(serde::Serialize, serde::Deserialize))]
@@ -248,7 +247,6 @@ impl fmt::Display for CardLevel {
         }
     }
 }
-
 
 /// A range of BIN numbers.
 ///

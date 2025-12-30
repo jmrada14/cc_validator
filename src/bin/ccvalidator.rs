@@ -19,15 +19,16 @@
 //! ccvalidator expiry 12/25
 //! ```
 
+use cc_validator::{cvv, expiry, format, generate, is_valid, mask, validate, CardBrand};
 use clap::{Parser, Subcommand, ValueEnum};
-use cc_validator::{
-    validate, is_valid, CardBrand,
-    format, expiry, cvv, generate, mask,
-};
 
 #[derive(Parser)]
 #[command(name = "ccvalidator")]
-#[command(author, version, about = "Enterprise-grade credit card validation tool")]
+#[command(
+    author,
+    version,
+    about = "Enterprise-grade credit card validation tool"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -162,22 +163,38 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Validate { card_number, output } => {
+        Commands::Validate {
+            card_number,
+            output,
+        } => {
             cmd_validate(&card_number, output);
         }
-        Commands::Generate { brand, count, formatted } => {
+        Commands::Generate {
+            brand,
+            count,
+            formatted,
+        } => {
             cmd_generate(brand.into(), count, formatted);
         }
-        Commands::Format { card_number, separator } => {
+        Commands::Format {
+            card_number,
+            separator,
+        } => {
             cmd_format(&card_number, &separator);
         }
-        Commands::Cvv { cvv: cvv_input, brand } => {
+        Commands::Cvv {
+            cvv: cvv_input,
+            brand,
+        } => {
             cmd_cvv(&cvv_input, brand.map(|b| b.into()));
         }
         Commands::Expiry { date, max_years } => {
             cmd_expiry(&date, max_years);
         }
-        Commands::Mask { card_number, with_bin } => {
+        Commands::Mask {
+            card_number,
+            with_bin,
+        } => {
             cmd_mask(&card_number, with_bin);
         }
         Commands::Luhn { card_number } => {

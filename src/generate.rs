@@ -414,8 +414,12 @@ mod tests {
 
         for brand in brands {
             let card = generate_card_deterministic(brand);
-            assert!(is_valid(&card) || crate::passes_luhn(&card),
-                "Generated card for {:?} should pass validation: {}", brand, card);
+            assert!(
+                is_valid(&card) || crate::passes_luhn(&card),
+                "Generated card for {:?} should pass validation: {}",
+                brand,
+                card
+            );
         }
     }
 

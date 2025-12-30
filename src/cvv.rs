@@ -126,8 +126,15 @@ impl fmt::Display for CvvError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Empty => write!(f, "CVV is empty"),
-            Self::InvalidCharacter { character, position } => {
-                write!(f, "invalid character '{}' at position {}", character, position)
+            Self::InvalidCharacter {
+                character,
+                position,
+            } => {
+                write!(
+                    f,
+                    "invalid character '{}' at position {}",
+                    character, position
+                )
             }
             Self::InvalidLength { length, expected } => {
                 write!(f, "CVV must be {} digits, got {}", expected, length)

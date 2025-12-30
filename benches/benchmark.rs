@@ -23,21 +23,15 @@ const AMEX_DIGITS: [u8; 15] = [3, 7, 8, 2, 8, 2, 2, 4, 6, 3, 1, 0, 0, 0, 5];
 fn bench_single_validation(c: &mut Criterion) {
     let mut group = c.benchmark_group("single_validation");
 
-    group.bench_function("visa_16_raw", |b| {
-        b.iter(|| validate(black_box(VISA_16)))
-    });
+    group.bench_function("visa_16_raw", |b| b.iter(|| validate(black_box(VISA_16))));
 
     group.bench_function("visa_16_formatted", |b| {
         b.iter(|| validate(black_box(VISA_16_FORMATTED)))
     });
 
-    group.bench_function("mastercard", |b| {
-        b.iter(|| validate(black_box(MASTERCARD)))
-    });
+    group.bench_function("mastercard", |b| b.iter(|| validate(black_box(MASTERCARD))));
 
-    group.bench_function("amex_15", |b| {
-        b.iter(|| validate(black_box(AMEX)))
-    });
+    group.bench_function("amex_15", |b| b.iter(|| validate(black_box(AMEX))));
 
     group.finish();
 }
@@ -91,9 +85,11 @@ fn bench_batch_validation(c: &mut Criterion) {
 
         group.throughput(Throughput::Elements(*size as u64));
 
-        group.bench_with_input(BenchmarkId::new("validate_batch", size), &cards, |b, cards| {
-            b.iter(|| validate_batch(black_box(cards)))
-        });
+        group.bench_with_input(
+            BenchmarkId::new("validate_batch", size),
+            &cards,
+            |b, cards| b.iter(|| validate_batch(black_box(cards))),
+        );
 
         group.bench_with_input(BenchmarkId::new("count_valid", size), &cards, |b, cards| {
             b.iter(|| count_valid(black_box(cards)))
@@ -139,9 +135,7 @@ fn bench_streaming(c: &mut Criterion) {
         group.bench_with_input(
             BenchmarkId::new("valid_only_stream", size),
             &cards,
-            |b, cards| {
-                b.iter(|| cards.iter().copied().validate_valid_only().count())
-            },
+            |b, cards| b.iter(|| cards.iter().copied().validate_valid_only().count()),
         );
     }
 
@@ -154,25 +148,17 @@ fn bench_card_operations(c: &mut Criterion) {
 
     let card = validate(VISA_16).unwrap();
 
-    group.bench_function("last_four", |b| {
-        b.iter(|| black_box(&card).last_four())
-    });
+    group.bench_function("last_four", |b| b.iter(|| black_box(&card).last_four()));
 
-    group.bench_function("bin6", |b| {
-        b.iter(|| black_box(&card).bin6())
-    });
+    group.bench_function("bin6", |b| b.iter(|| black_box(&card).bin6()));
 
-    group.bench_function("masked", |b| {
-        b.iter(|| black_box(&card).masked())
-    });
+    group.bench_function("masked", |b| b.iter(|| black_box(&card).masked()));
 
     group.bench_function("masked_with_bin", |b| {
         b.iter(|| black_box(&card).masked_with_bin())
     });
 
-    group.bench_function("number", |b| {
-        b.iter(|| black_box(&card).number())
-    });
+    group.bench_function("number", |b| b.iter(|| black_box(&card).number()));
 
     group.finish();
 }

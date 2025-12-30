@@ -70,8 +70,13 @@ impl SqliteBinDb {
     /// * `path` - Path to the SQLite database file.
     /// * `table` - Name of the table containing BIN data.
     pub fn open_with_table<P: AsRef<Path>>(path: P, table: &str) -> Result<Self, BinDbError> {
-        let conn = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)
-            .map_err(|e| BinDbError::IoError(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())))?;
+        let conn =
+            Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|e| {
+                BinDbError::IoError(std::io::Error::new(
+                    std::io::ErrorKind::Other,
+                    e.to_string(),
+                ))
+            })?;
 
         // Optimize for read-only queries
         conn.execute_batch(
@@ -91,8 +96,12 @@ impl SqliteBinDb {
     ///
     /// Useful for testing or temporary databases.
     pub fn open_in_memory() -> Result<Self, BinDbError> {
-        let conn = Connection::open_in_memory()
-            .map_err(|e| BinDbError::IoError(std::io::Error::new(std::io::ErrorKind::Other, e.to_string())))?;
+        let conn = Connection::open_in_memory().map_err(|e| {
+            BinDbError::IoError(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                e.to_string(),
+            ))
+        })?;
 
         Ok(Self {
             conn: Mutex::new(conn),
@@ -331,17 +340,21 @@ mod tests {
         let db = SqliteBinDb::open_in_memory().unwrap();
         db.create_schema().unwrap();
 
-        db.insert(&BinInfo::with_bin("411111")
-            .issuer("Test Bank")
-            .card_type(CardType::Credit)
-            .country("US"))
-            .unwrap();
+        db.insert(
+            &BinInfo::with_bin("411111")
+                .issuer("Test Bank")
+                .card_type(CardType::Credit)
+                .country("US"),
+        )
+        .unwrap();
 
-        db.insert(&BinInfo::with_bin("550000")
-            .issuer("Another Bank")
-            .card_type(CardType::Debit)
-            .country("GB"))
-            .unwrap();
+        db.insert(
+            &BinInfo::with_bin("550000")
+                .issuer("Another Bank")
+                .card_type(CardType::Debit)
+                .country("GB"),
+        )
+        .unwrap();
 
         db
     }
