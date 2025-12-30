@@ -80,24 +80,20 @@ jobs:
           RUSTDOCFLAGS: -D warnings
 
   msrv:
-    name: MSRV (1.70)
+    name: MSRV (1.75)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Rust 1.70
-        uses: dtolnay/rust-toolchain@1.70
+      - name: Install Rust 1.75
+        uses: dtolnay/rust-toolchain@1.75
 
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
-      # Only check core features:
-      # - server requires tokio 1.71+
-      # - wasm requires wasm-bindgen-macro 1.71+
-      # - cli requires clap 1.74+
-      # - bin-sqlite may have version constraints
+      # Check all features except simd (requires nightly)
       - name: Check MSRV
-        run: cargo check --features "bin-json,bin-csv,parallel,generate"
+        run: cargo check --features "bin-json,bin-csv,bin-sqlite,parallel,generate,cli,wasm,server"
 
   wasm:
     name: WASM Build

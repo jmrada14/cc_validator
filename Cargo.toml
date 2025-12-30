@@ -2,7 +2,7 @@
 name = "cc_validator"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.75"
 authors = ["Juan Rada Leon"]
 description = "Credit card validation library for Rust - work in progress"
 license = "MIT"
