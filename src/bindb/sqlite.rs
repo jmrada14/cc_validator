@@ -70,13 +70,8 @@ impl SqliteBinDb {
     /// * `path` - Path to the SQLite database file.
     /// * `table` - Name of the table containing BIN data.
     pub fn open_with_table<P: AsRef<Path>>(path: P, table: &str) -> Result<Self, BinDbError> {
-        let conn =
-            Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY).map_err(|e| {
-                BinDbError::IoError(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    e.to_string(),
-                ))
-            })?;
+        let conn = Connection::open_with_flags(path, OpenFlags::SQLITE_OPEN_READ_ONLY)
+            .map_err(|e| BinDbError::IoError(std::io::Error::other(e.to_string())))?;
 
         // Optimize for read-only queries
         conn.execute_batch(
@@ -96,12 +91,8 @@ impl SqliteBinDb {
     ///
     /// Useful for testing or temporary databases.
     pub fn open_in_memory() -> Result<Self, BinDbError> {
-        let conn = Connection::open_in_memory().map_err(|e| {
-            BinDbError::IoError(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                e.to_string(),
-            ))
-        })?;
+        let conn = Connection::open_in_memory()
+            .map_err(|e| BinDbError::IoError(std::io::Error::other(e.to_string())))?;
 
         Ok(Self {
             conn: Mutex::new(conn),

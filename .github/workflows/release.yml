@@ -4,12 +4,18 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v0.1.1)'
+        required: true
 
 permissions:
   contents: write
 
 env:
   CARGO_TERM_COLOR: always
+  RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
   build-cli:
@@ -65,21 +71,21 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar -czvf ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
-          mv ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ../../../
+          tar -czvf ccvalidator-${{ env.RELEASE_TAG }}-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+          mv ccvalidator-${{ env.RELEASE_TAG }}-${{ matrix.target }}.tar.gz ../../../
 
       - name: Package (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.zip ${{ matrix.artifact }}
-          mv ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.zip ../../../
+          7z a ccvalidator-${{ env.RELEASE_TAG }}-${{ matrix.target }}.zip ${{ matrix.artifact }}
+          mv ccvalidator-${{ env.RELEASE_TAG }}-${{ matrix.target }}.zip ../../../
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ccvalidator-${{ matrix.target }}
-          path: ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.*
+          path: ccvalidator-${{ env.RELEASE_TAG }}-${{ matrix.target }}.*
 
   build-wasm:
     name: Build WASM
@@ -101,13 +107,13 @@ jobs:
       - name: Package WASM
         run: |
           cd pkg
-          tar -czvf ../cc-validator-wasm-${{ github.ref_name }}.tar.gz .
+          tar -czvf ../cc-validator-wasm-${{ env.RELEASE_TAG }}.tar.gz .
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: cc-validator-wasm
-          path: cc-validator-wasm-${{ github.ref_name }}.tar.gz
+          path: cc-validator-wasm-${{ env.RELEASE_TAG }}.tar.gz
 
   publish-crate:
     name: Publish to crates.io
@@ -138,5 +144,6 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ env.RELEASE_TAG }}
           files: artifacts/**/*
           generate_release_notes: true

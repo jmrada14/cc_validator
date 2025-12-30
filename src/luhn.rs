@@ -52,7 +52,7 @@ pub fn validate(digits: &[u8]) -> bool {
     }
 
     let sum = compute_checksum(digits);
-    sum % 10 == 0
+    sum.is_multiple_of(10)
 }
 
 /// Computes the Luhn checksum for a sequence of digits.
@@ -179,7 +179,7 @@ pub fn validate_16(digits: &[u8; 16]) -> bool {
         + digits[1] as u32
         + DOUBLE_TABLE[digits[0] as usize] as u32;
 
-    sum % 10 == 0
+    sum.is_multiple_of(10)
 }
 
 /// Validates digits using an optimized unrolled loop for 15-digit cards (Amex).
@@ -206,7 +206,7 @@ pub fn validate_15(digits: &[u8; 15]) -> bool {
         + DOUBLE_TABLE[digits[1] as usize] as u32
         + digits[0] as u32;
 
-    sum % 10 == 0
+    sum.is_multiple_of(10)
 }
 
 #[cfg(test)]

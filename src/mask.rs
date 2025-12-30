@@ -49,7 +49,7 @@ pub fn mask_card(card: &ValidatedCard) -> String {
     }
 
     // Add separator before last 4 if needed
-    if masked_count > 0 && masked_count % 4 == 0 {
+    if masked_count > 0 && masked_count.is_multiple_of(4) {
         result.push('-');
     }
 
@@ -133,7 +133,7 @@ pub fn mask_string(input: &str) -> String {
     }
 
     // Add separator before last 4 if needed
-    if masked_count % 4 == 0 {
+    if masked_count.is_multiple_of(4) {
         result.push('-');
     }
 
