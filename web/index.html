@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Validator</title>
+    <style>
+        :root {
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #666;
+            --border: #e0e0e0;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --error: #dc2626;
+            --input-bg: #f5f5f5;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--input-bg);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input.valid {
+            border-color: var(--success);
+            background: #f0fdf4;
+        }
+
+        input.invalid {
+            border-color: var(--error);
+            background: #fef2f2;
+        }
+
+        .card-number-input {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+            font-size: 1.25rem;
+            letter-spacing: 0.05em;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .result {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .result.success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .result.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem 1rem;
+            margin-top: 0.75rem;
+        }
+
+        .result-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .result-value {
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--input-bg);
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .row > * {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .generated-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            background: var(--input-bg);
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+        }
+
+        .copy-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-indicator.valid {
+            background: var(--success);
+        }
+
+        .status-indicator.invalid {
+            background: var(--error);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.25rem;
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text);
+            background: var(--input-bg);
+        }
+
+        .tab.active {
+            color: var(--primary);
+            font-weight: 500;
+            background: var(--input-bg);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .row {
+                flex-direction: column;
+            }
+            .row > * {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Credit Card Validator</h1>
+            <p class="subtitle">Enterprise-grade validation powered by Rust + WebAssembly</p>
+        </header>
+
+        <div id="loading" class="card loading">
+            Loading WebAssembly module...
+        </div>
+
+        <div id="app" style="display: none;">
+            <!-- Card Validation -->
+            <div class="card">
+                <h2>Card Validation</h2>
+                <div class="input-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input
+                        type="text"
+                        id="cardNumber"
+                        class="card-number-input"
+                        placeholder="4111 1111 1111 1111"
+                        maxlength="23"
+                        autocomplete="off"
+                    >
+                </div>
+                <div id="validationResult"></div>
+            </div>
+
+            <!-- Tools -->
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" data-tab="generate">Generate</button>
+                    <button class="tab" data-tab="cvv">CVV</button>
+                    <button class="tab" data-tab="expiry">Expiry</button>
+                    <button class="tab" data-tab="format">Format</button>
+                </div>
+
+                <!-- Generate Tab -->
+                <div id="tab-generate" class="tab-content active">
+                    <div class="row">
+                        <div class="input-group">
+                            <label for="generateBrand">Card Brand</label>
+                            <select id="generateBrand">
+                                <option value="visa">Visa</option>
+                                <option value="mastercard">Mastercard</option>
+                                <option value="amex">American Express</option>
+                                <option value="discover">Discover</option>
+                                <option value="jcb">JCB</option>
+                                <option value="diners">Diners Club</option>
+                                <option value="unionpay">UnionPay</option>
+                                <option value="maestro">Maestro</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="generateCount">Count</label>
+                            <select id="generateCount">
+                                <option value="1">1</option>
+                                <option value="3">3</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-primary" id="generateBtn">Generate Test Cards</button>
+                    </div>
+                    <div id="generatedCards"></div>
+                </div>
+
+                <!-- CVV Tab -->
+                <div id="tab-cvv" class="tab-content">
+                    <div class="row">
+                        <div class="input-group">
+                            <label for="cvvInput">CVV/CVC</label>
+                            <input type="text" id="cvvInput" placeholder="123" maxlength="4">
+                        </div>
+                        <div class="input-group">
+                            <label for="cvvBrand">Card Brand (optional)</label>
+                            <select id="cvvBrand">
+                                <option value="">Any</option>
+                                <option value="visa">Visa (3 digits)</option>
+                                <option value="mastercard">Mastercard (3 digits)</option>
+                                <option value="amex">American Express (4 digits)</option>
+                                <option value="discover">Discover (3 digits)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="cvvResult"></div>
+                </div>
+
+                <!-- Expiry Tab -->
+                <div id="tab-expiry" class="tab-content">
+                    <div class="row">
+                        <div class="input-group">
+                            <label for="expiryInput">Expiry Date</label>
+                            <input type="text" id="expiryInput" placeholder="MM/YY or MM/YYYY">
+                        </div>
+                    </div>
+                    <div id="expiryResult"></div>
+                </div>
+
+                <!-- Format Tab -->
+                <div id="tab-format" class="tab-content">
+                    <div class="row">
+                        <div class="input-group">
+                            <label for="formatInput">Card Number</label>
+                            <input type="text" id="formatInput" placeholder="4111111111111111">
+                        </div>
+                        <div class="input-group">
+                            <label for="formatSeparator">Separator</label>
+                            <select id="formatSeparator">
+                                <option value=" ">Space</option>
+                                <option value="-">Dash</option>
+                                <option value="">None</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="formatResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Built with <a href="https://www.rust-lang.org/" target="_blank">Rust</a> +
+            <a href="https://webassembly.org/" target="_blank">WebAssembly</a>
+        </footer>
+    </div>
+
+    <script type="module">
+        import init, {
+            validate_card,
+            is_valid,
+            detect_brand,
+            format_card,
+            format_card_with_separator,
+            generate_test_card,
+            validate_cvv,
+            validate_cvv_for_brand,
+            validate_expiry,
+            mask_card
+        } from './pkg/cc_validator.js';
+
+        let wasmReady = false;
+
+        async function initWasm() {
+            try {
+                await init();
+                wasmReady = true;
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                setupEventListeners();
+            } catch (e) {
+                document.getElementById('loading').innerHTML =
+                    `<span style="color: var(--error)">Failed to load WebAssembly: ${e.message}</span>`;
+            }
+        }
+
+        function formatCardNumber(value) {
+            const digits = value.replace(/\D/g, '');
+            const brand = digits.length >= 2 ? detect_brand(digits) : null;
+
+            // Amex: 4-6-5, others: 4-4-4-4
+            if (brand === 'American Express') {
+                return digits.replace(/(\d{4})(\d{0,6})(\d{0,5})/, (_, a, b, c) =>
+                    [a, b, c].filter(Boolean).join(' ')
+                ).trim();
+            }
+            return digits.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+        }
+
+        function setupEventListeners() {
+            // Card number input - live validation
+            const cardInput = document.getElementById('cardNumber');
+            cardInput.addEventListener('input', (e) => {
+                const formatted = formatCardNumber(e.target.value);
+                e.target.value = formatted;
+                validateCard(formatted);
+            });
+
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+                });
+            });
+
+            // Generate cards
+            document.getElementById('generateBtn').addEventListener('click', generateCards);
+
+            // CVV validation
+            document.getElementById('cvvInput').addEventListener('input', validateCvv);
+            document.getElementById('cvvBrand').addEventListener('change', validateCvv);
+
+            // Expiry validation
+            document.getElementById('expiryInput').addEventListener('input', validateExpiry);
+
+            // Format
+            document.getElementById('formatInput').addEventListener('input', formatCard);
+            document.getElementById('formatSeparator').addEventListener('change', formatCard);
+        }
+
+        function validateCard(cardNumber) {
+            const resultDiv = document.getElementById('validationResult');
+            const cardInput = document.getElementById('cardNumber');
+            const digits = cardNumber.replace(/\D/g, '');
+
+            if (digits.length === 0) {
+                resultDiv.innerHTML = '';
+                cardInput.classList.remove('valid', 'invalid');
+                return;
+            }
+
+            // Show brand detection while typing
+            const brand = detect_brand(digits);
+
+            if (digits.length < 12) {
+                cardInput.classList.remove('valid', 'invalid');
+                if (brand) {
+                    resultDiv.innerHTML = `<div class="result" style="background: var(--input-bg); border: 1px solid var(--border);">
+                        <span class="brand-badge">${brand}</span>
+                    </div>`;
+                } else {
+                    resultDiv.innerHTML = '';
+                }
+                return;
+            }
+
+            const result = validate_card(cardNumber);
+
+            if (result.valid) {
+                cardInput.classList.remove('invalid');
+                cardInput.classList.add('valid');
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="status-indicator valid"></span>
+                            <strong>Valid Card</strong>
+                        </div>
+                        <div class="result-grid">
+                            <span class="result-label">Brand</span>
+                            <span class="result-value">${result.brand}</span>
+                            <span class="result-label">Last Four</span>
+                            <span class="result-value">${result.last_four}</span>
+                            <span class="result-label">Masked</span>
+                            <span class="result-value">${result.masked}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                cardInput.classList.remove('valid');
+                cardInput.classList.add('invalid');
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="status-indicator invalid"></span>
+                            <strong>Invalid:</strong> ${result.error}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function generateCards() {
+            const brand = document.getElementById('generateBrand').value;
+            const count = parseInt(document.getElementById('generateCount').value);
+            const container = document.getElementById('generatedCards');
+
+            let html = '';
+            for (let i = 0; i < count; i++) {
+                try {
+                    const card = generate_test_card(brand);
+                    const formatted = format_card(card);
+                    html += `
+                        <div class="generated-card">
+                            <span>${formatted}</span>
+                            <button class="btn-secondary copy-btn" onclick="copyToClipboard('${card}', this)">Copy</button>
+                        </div>
+                    `;
+                } catch (e) {
+                    html += `<div class="result error">${e.message}</div>`;
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        function validateCvv() {
+            const cvv = document.getElementById('cvvInput').value;
+            const brand = document.getElementById('cvvBrand').value;
+            const resultDiv = document.getElementById('cvvResult');
+
+            if (!cvv) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            let result;
+            if (brand) {
+                result = validate_cvv_for_brand(cvv, brand);
+            } else {
+                result = validate_cvv(cvv);
+            }
+
+            if (result.valid) {
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <span class="status-indicator valid"></span>
+                        <strong>Valid CVV</strong> (${result.length} digits)
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <span class="status-indicator invalid"></span>
+                        <strong>Invalid:</strong> ${result.error}
+                    </div>
+                `;
+            }
+        }
+
+        function validateExpiry() {
+            const expiry = document.getElementById('expiryInput').value;
+            const resultDiv = document.getElementById('expiryResult');
+
+            if (!expiry) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            const result = validate_expiry(expiry);
+
+            if (result.valid) {
+                const status = result.expired ?
+                    '<span style="color: var(--error)">Expired</span>' :
+                    '<span style="color: var(--success)">Active</span>';
+                resultDiv.innerHTML = `
+                    <div class="result ${result.expired ? 'error' : 'success'}">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <span class="status-indicator ${result.expired ? 'invalid' : 'valid'}"></span>
+                            <strong>${result.expired ? 'Expired' : 'Valid Expiry'}</strong>
+                        </div>
+                        <div class="result-grid">
+                            <span class="result-label">Month</span>
+                            <span class="result-value">${result.month}</span>
+                            <span class="result-label">Year</span>
+                            <span class="result-value">${result.year}</span>
+                            <span class="result-label">Formatted</span>
+                            <span class="result-value">${result.formatted}</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <span class="status-indicator invalid"></span>
+                        <strong>Invalid:</strong> ${result.error}
+                    </div>
+                `;
+            }
+        }
+
+        function formatCard() {
+            const card = document.getElementById('formatInput').value;
+            const separator = document.getElementById('formatSeparator').value;
+            const resultDiv = document.getElementById('formatResult');
+
+            if (!card) {
+                resultDiv.innerHTML = '';
+                return;
+            }
+
+            const formatted = format_card_with_separator(card, separator);
+            const brand = detect_brand(card);
+
+            resultDiv.innerHTML = `
+                <div class="result" style="background: var(--input-bg); border: 1px solid var(--border);">
+                    <div class="result-grid">
+                        <span class="result-label">Formatted</span>
+                        <span class="result-value">${formatted}</span>
+                        ${brand ? `
+                        <span class="result-label">Brand</span>
+                        <span class="result-value">${brand}</span>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Global copy function
+        window.copyToClipboard = async function(text, btn) {
+            try {
+                await navigator.clipboard.writeText(text);
+                const original = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = original, 1500);
+            } catch (e) {
+                console.error('Copy failed:', e);
+            }
+        };
+
+        // Initialize
+        initWasm();
+    </script>
+</body>
+</html>

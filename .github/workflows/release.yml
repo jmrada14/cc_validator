@@ -1,0 +1,162 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+  build-cli:
+    name: Build CLI (${{ matrix.target }})
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact: ccvalidator
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: ccvalidator
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            artifact: ccvalidator
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact: ccvalidator
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact: ccvalidator
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact: ccvalidator.exe
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross-compilation tools
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu
+
+      - name: Install musl tools
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Build
+        run: cargo build --release --features cli --target ${{ matrix.target }}
+
+      - name: Package (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar -czvf ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+          mv ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.tar.gz ../../../
+
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.zip ${{ matrix.artifact }}
+          mv ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.zip ../../../
+
+      - name: Upload Release Asset (Unix)
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+          asset_name: ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Upload Release Asset (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.zip
+          asset_name: ccvalidator-${{ github.ref_name }}-${{ matrix.target }}.zip
+          asset_content_type: application/zip
+
+  publish-crate:
+    name: Publish to crates.io
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Publish
+        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        continue-on-error: true
+
+  build-wasm:
+    name: Build & Publish WASM
+    needs: create-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build WASM
+        run: wasm-pack build --target web --features wasm
+
+      - name: Package WASM
+        run: |
+          cd pkg
+          tar -czvf ../cc-validator-wasm-${{ github.ref_name }}.tar.gz .
+
+      - name: Upload WASM Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: cc-validator-wasm-${{ github.ref_name }}.tar.gz
+          asset_name: cc-validator-wasm-${{ github.ref_name }}.tar.gz
+          asset_content_type: application/gzip

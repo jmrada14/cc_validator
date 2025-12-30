@@ -1,0 +1,56 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.so
+*.dylib
+*.dll
+
+# WASM
+/web/pkg/
+/pkg/
+
+# Node.js
+/node/node_modules/
+/node/target/
+/node/*.node
+/node/npm-debug.log
+
+# Coverage
+*.profraw
+*.profdata
+/coverage/
+lcov.info
+tarpaulin-report.html
+
+# Benchmarks
+/target/criterion/
+
+# Fuzz
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+
+# Environment
+.env
+.env.local
+*.pem
+*.key
+
+# Temporary files
+*.tmp
+*.temp
+*.log

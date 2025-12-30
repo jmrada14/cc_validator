@@ -1,0 +1,51 @@
+[package]
+name = "cc_validator-fuzz"
+version = "0.0.0"
+authors = ["Automatically generated"]
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+arbitrary = { version = "1", features = ["derive"] }
+
+[dependencies.cc_validator]
+path = ".."
+
+[[bin]]
+name = "fuzz_validate"
+path = "fuzz_targets/fuzz_validate.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_luhn"
+path = "fuzz_targets/fuzz_luhn.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_expiry"
+path = "fuzz_targets/fuzz_expiry.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_cvv"
+path = "fuzz_targets/fuzz_cvv.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fuzz_format"
+path = "fuzz_targets/fuzz_format.rs"
+test = false
+doc = false
+bench = false

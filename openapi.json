@@ -1,0 +1,429 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Credit Card Validator API",
+    "description": "Enterprise-grade credit card validation REST API",
+    "version": "0.1.0",
+    "license": {
+      "name": "MIT OR Apache-2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/validate": {
+      "post": {
+        "summary": "Validate a credit card number",
+        "operationId": "validateCard",
+        "tags": ["Validation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              },
+              "example": {
+                "card_number": "4111-1111-1111-1111"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate/batch": {
+      "post": {
+        "summary": "Validate multiple card numbers",
+        "operationId": "validateBatch",
+        "tags": ["Validation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchValidateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Batch validation results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchValidateResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/detect": {
+      "get": {
+        "summary": "Detect card brand from number",
+        "operationId": "detectBrand",
+        "tags": ["Detection"],
+        "parameters": [
+          {
+            "name": "card",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Card number or prefix"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detected brand",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/format": {
+      "post": {
+        "summary": "Format a card number",
+        "operationId": "formatCard",
+        "tags": ["Formatting"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FormatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Formatted card number",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FormatResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/generate": {
+      "post": {
+        "summary": "Generate test card numbers",
+        "operationId": "generateCards",
+        "tags": ["Generation"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generated card numbers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid brand"
+          }
+        }
+      }
+    },
+    "/cvv/validate": {
+      "post": {
+        "summary": "Validate a CVV/CVC code",
+        "operationId": "validateCvv",
+        "tags": ["CVV"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CvvRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "CVV validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CvvResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/expiry/validate": {
+      "post": {
+        "summary": "Validate an expiry date",
+        "operationId": "validateExpiry",
+        "tags": ["Expiry"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpiryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Expiry validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExpiryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "operationId": "health",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ValidateRequest": {
+        "type": "object",
+        "required": ["card_number"],
+        "properties": {
+          "card_number": {
+            "type": "string",
+            "description": "Card number (can include spaces or dashes)"
+          }
+        }
+      },
+      "ValidateResponse": {
+        "type": "object",
+        "required": ["valid"],
+        "properties": {
+          "valid": {
+            "type": "boolean"
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "last_four": {
+            "type": "string",
+            "nullable": true
+          },
+          "masked": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "BatchValidateRequest": {
+        "type": "object",
+        "required": ["card_numbers"],
+        "properties": {
+          "card_numbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "BatchValidateResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidateResponse"
+            }
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "total": { "type": "integer" },
+              "valid": { "type": "integer" },
+              "invalid": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "DetectResponse": {
+        "type": "object",
+        "properties": {
+          "brand": {
+            "type": "string",
+            "nullable": true
+          },
+          "valid_lengths": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "nullable": true
+          }
+        }
+      },
+      "FormatRequest": {
+        "type": "object",
+        "required": ["card_number"],
+        "properties": {
+          "card_number": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string",
+            "default": " "
+          }
+        }
+      },
+      "FormatResponse": {
+        "type": "object",
+        "properties": {
+          "formatted": { "type": "string" },
+          "stripped": { "type": "string" }
+        }
+      },
+      "GenerateRequest": {
+        "type": "object",
+        "required": ["brand"],
+        "properties": {
+          "brand": {
+            "type": "string",
+            "enum": ["visa", "mastercard", "amex", "discover", "jcb", "diners", "unionpay", "maestro"]
+          },
+          "count": {
+            "type": "integer",
+            "default": 1,
+            "maximum": 100
+          },
+          "formatted": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "GenerateResponse": {
+        "type": "object",
+        "properties": {
+          "cards": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "CvvRequest": {
+        "type": "object",
+        "required": ["cvv"],
+        "properties": {
+          "cvv": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CvvResponse": {
+        "type": "object",
+        "properties": {
+          "valid": { "type": "boolean" },
+          "length": { "type": "integer", "nullable": true },
+          "error": { "type": "string", "nullable": true }
+        }
+      },
+      "ExpiryRequest": {
+        "type": "object",
+        "required": ["date"],
+        "properties": {
+          "date": {
+            "type": "string",
+            "description": "Expiry date (MM/YY, MM/YYYY, MMYY, etc.)"
+          }
+        }
+      },
+      "ExpiryResponse": {
+        "type": "object",
+        "properties": {
+          "valid": { "type": "boolean" },
+          "month": { "type": "integer", "nullable": true },
+          "year": { "type": "integer", "nullable": true },
+          "expired": { "type": "boolean", "nullable": true },
+          "formatted": { "type": "string", "nullable": true },
+          "error": { "type": "string", "nullable": true }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "version": { "type": "string" }
+        }
+      }
+    }
+  }
+}

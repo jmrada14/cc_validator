@@ -1,0 +1,50 @@
+{
+  "name": "cc-validator",
+  "version": "0.1.0",
+  "description": "Credit card validation - native Node.js bindings",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node"
+  ],
+  "napi": {
+    "name": "cc-validator",
+    "triples": {
+      "defaults": true,
+      "additional": [
+        "x86_64-unknown-linux-musl",
+        "aarch64-unknown-linux-gnu",
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-musl"
+      ]
+    }
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@napi-rs/cli": "^2.18.0"
+  },
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "prepublishOnly": "napi prepublish -t npm",
+    "test": "node test.js"
+  },
+  "keywords": [
+    "credit-card",
+    "validation",
+    "luhn",
+    "payment",
+    "napi-rs",
+    "native"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jmrada14/cc_validator"
+  },
+  "engines": {
+    "node": ">= 10"
+  }
+}
