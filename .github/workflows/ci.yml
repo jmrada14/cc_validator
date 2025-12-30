@@ -27,8 +27,9 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      # Test without simd feature (requires nightly)
       - name: Run tests
-        run: cargo test --all-features
+        run: cargo test --features "bin-json,bin-csv,bin-sqlite,parallel,generate,cli,wasm,server"
 
       - name: Run tests (no default features)
         run: cargo test --no-default-features
@@ -50,8 +51,9 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
 
+      # Clippy without simd feature (requires nightly)
       - name: Clippy
-        run: cargo clippy --all-features -- -D warnings
+        run: cargo clippy --features "bin-json,bin-csv,bin-sqlite,parallel,generate,cli,wasm,server" -- -D warnings
 
   docs:
     name: Documentation
@@ -65,8 +67,9 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      # Build docs without simd feature (requires nightly)
       - name: Build docs
-        run: cargo doc --all-features --no-deps
+        run: cargo doc --features "bin-json,bin-csv,bin-sqlite,parallel,generate,cli,wasm,server" --no-deps
         env:
           RUSTDOCFLAGS: -D warnings
 
@@ -82,8 +85,9 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
+      # Only check core features - server requires newer tokio
       - name: Check MSRV
-        run: cargo check --all-features
+        run: cargo check --features "bin-json,bin-csv,parallel,generate,cli,wasm"
 
   wasm:
     name: WASM Build
@@ -138,5 +142,28 @@ jobs:
       - name: Check wasm
         run: cargo check --features wasm
 
-      - name: Check all features
-        run: cargo check --all-features
+      - name: Check server
+        run: cargo check --features server
+
+      # Check all features except simd (requires nightly)
+      - name: Check all stable features
+        run: cargo check --features "bin-json,bin-csv,bin-sqlite,parallel,generate,cli,wasm,server"
+
+  # Separate job for simd on nightly
+  simd:
+    name: SIMD (nightly)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust nightly
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check simd feature
+        run: cargo check --features simd
+
+      - name: Test simd feature
+        run: cargo test --features simd
