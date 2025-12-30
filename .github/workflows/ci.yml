@@ -27,9 +27,15 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
-      # Test without simd feature (requires nightly)
-      - name: Run tests
+      # Test without simd (requires nightly) and bin-sqlite (requires SQLite on Windows)
+      - name: Run tests (Unix)
+        if: matrix.os != 'windows-latest'
         run: cargo test --features "bin-json,bin-csv,bin-sqlite,parallel,generate,cli,wasm,server"
+
+      # Windows: exclude bin-sqlite (SQLite library not available)
+      - name: Run tests (Windows)
+        if: matrix.os == 'windows-latest'
+        run: cargo test --features "bin-json,bin-csv,parallel,generate,cli,wasm,server"
 
       - name: Run tests (no default features)
         run: cargo test --no-default-features
@@ -85,9 +91,12 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
-      # Only check core features - server requires newer tokio
+      # Only check core features:
+      # - server requires tokio 1.71+
+      # - wasm requires wasm-bindgen-macro 1.71+
+      # - bin-sqlite may have version constraints
       - name: Check MSRV
-        run: cargo check --features "bin-json,bin-csv,parallel,generate,cli,wasm"
+        run: cargo check --features "bin-json,bin-csv,parallel,generate,cli"
 
   wasm:
     name: WASM Build
@@ -129,6 +138,9 @@ jobs:
 
       - name: Check bin-csv
         run: cargo check --features bin-csv
+
+      - name: Check bin-sqlite
+        run: cargo check --features bin-sqlite
 
       - name: Check parallel
         run: cargo check --features parallel

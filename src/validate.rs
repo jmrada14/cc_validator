@@ -55,9 +55,8 @@ pub fn validate(input: &str) -> Result<ValidatedCard, ValidationError> {
     // Parse input into digits array (zero-copy - we just extract digits)
     let mut digits = [0u8; MAX_CARD_DIGITS];
     let mut count = 0usize;
-    let mut pos = 0usize;
 
-    for c in input.chars() {
+    for (pos, c) in input.chars().enumerate() {
         match c {
             '0'..='9' => {
                 if count >= MAX_CARD_DIGITS {
@@ -79,7 +78,6 @@ pub fn validate(input: &str) -> Result<ValidatedCard, ValidationError> {
                 });
             }
         }
-        pos += 1;
     }
 
     // Check for empty after stripping
@@ -139,9 +137,8 @@ pub fn validate_any(input: &str) -> Result<ValidatedCard, ValidationError> {
 
     let mut digits = [0u8; MAX_CARD_DIGITS];
     let mut count = 0usize;
-    let mut pos = 0usize;
 
-    for c in input.chars() {
+    for (pos, c) in input.chars().enumerate() {
         match c {
             '0'..='9' => {
                 if count >= MAX_CARD_DIGITS {
@@ -161,7 +158,6 @@ pub fn validate_any(input: &str) -> Result<ValidatedCard, ValidationError> {
                 });
             }
         }
-        pos += 1;
     }
 
     if count == 0 {

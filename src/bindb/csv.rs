@@ -16,8 +16,6 @@
 //! Column order doesn't matter as long as headers are present.
 //! Only the `bin` column is required.
 
-#![cfg(feature = "bin-csv")]
-
 use super::{BinDbError, BinInfo, CardLevel, CardType, MemoryBinDb};
 use std::fs::File;
 use std::io::{BufRead, BufReader, Read};
@@ -78,7 +76,7 @@ impl CsvBinLoader {
     }
 
     /// Loads a BIN database from a CSV string.
-    pub fn from_str(csv: &str) -> Result<MemoryBinDb, BinDbError> {
+    pub fn parse(csv: &str) -> Result<MemoryBinDb, BinDbError> {
         Self::from_reader(csv.as_bytes())
     }
 
@@ -254,7 +252,8 @@ impl SimpleCsvLoader {
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<MemoryBinDb, BinDbError> {
         let file = File::open(path)?;
         let reader = BufReader::new(file);
-        Self::from_lines(reader.lines().filter_map(|l| l.ok()))
+        // Use map_while to stop on first error instead of filter_map which could run forever
+        Self::from_lines(reader.lines().map_while(|l| l.ok()))
     }
 
     /// Loads from an iterator of lines.
@@ -324,7 +323,7 @@ mod tests {
 550000,Another Bank,debit,GB
 378282,Amex Bank,charge,US"#;
 
-        let db = CsvBinLoader::from_str(csv).unwrap();
+        let db = CsvBinLoader::parse(csv).unwrap();
         assert_eq!(db.len(), 3);
 
         let info = db.lookup_str("411111").unwrap();
@@ -338,7 +337,7 @@ mod tests {
         let csv = r#"iin,bank,type,country_code
 411111,Test Bank,credit,US"#;
 
-        let db = CsvBinLoader::from_str(csv).unwrap();
+        let db = CsvBinLoader::parse(csv).unwrap();
         let info = db.lookup_str("411111").unwrap();
         assert_eq!(info.issuer, Some("Test Bank".to_string()));
         assert_eq!(info.card_type, Some(CardType::Credit));
@@ -351,7 +350,7 @@ mod tests {
 411111,Test Bank
 550000,Another Bank"#;
 
-        let db = CsvBinLoader::from_str(csv).unwrap();
+        let db = CsvBinLoader::parse(csv).unwrap();
         assert_eq!(db.len(), 2);
 
         let info = db.lookup_str("411111").unwrap();
@@ -365,7 +364,7 @@ mod tests {
         let csv = r#"issuer,country
 Test Bank,US"#;
 
-        let result = CsvBinLoader::from_str(csv);
+        let result = CsvBinLoader::parse(csv);
         assert!(result.is_err());
     }
 
@@ -375,7 +374,7 @@ Test Bank,US"#;
 411111,,US
 550000,Bank,"#;
 
-        let db = CsvBinLoader::from_str(csv).unwrap();
+        let db = CsvBinLoader::parse(csv).unwrap();
 
         let info1 = db.lookup_str("411111").unwrap();
         assert!(info1.issuer.is_none());

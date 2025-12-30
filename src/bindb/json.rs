@@ -32,8 +32,6 @@
 //! }
 //! ```
 
-#![cfg(feature = "bin-json")]
-
 use super::{BinDbError, BinInfo, CardLevel, CardType, MemoryBinDb};
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -64,18 +62,18 @@ impl JsonBinLoader {
     /// ```
     pub fn from_file<P: AsRef<Path>>(path: P) -> Result<MemoryBinDb, BinDbError> {
         let content = fs::read_to_string(path)?;
-        Self::from_str(&content)
+        Self::parse(&content)
     }
 
     /// Loads a BIN database from a reader.
     pub fn from_reader<R: Read>(mut reader: R) -> Result<MemoryBinDb, BinDbError> {
         let mut content = String::new();
         reader.read_to_string(&mut content)?;
-        Self::from_str(&content)
+        Self::parse(&content)
     }
 
     /// Loads a BIN database from a JSON string.
-    pub fn from_str(json: &str) -> Result<MemoryBinDb, BinDbError> {
+    pub fn parse(json: &str) -> Result<MemoryBinDb, BinDbError> {
         // Try to detect format
         let trimmed = json.trim();
 
@@ -229,7 +227,7 @@ mod tests {
             }
         ]"#;
 
-        let db = JsonBinLoader::from_str(json).unwrap();
+        let db = JsonBinLoader::parse(json).unwrap();
         assert_eq!(db.len(), 2);
 
         let info = db.lookup_str("411111").unwrap();
@@ -251,7 +249,7 @@ mod tests {
             }
         }"#;
 
-        let db = JsonBinLoader::from_str(json).unwrap();
+        let db = JsonBinLoader::parse(json).unwrap();
         assert_eq!(db.len(), 2);
 
         let info = db.lookup_str("411111").unwrap();
@@ -271,7 +269,7 @@ mod tests {
             }
         ]"#;
 
-        let db = JsonBinLoader::from_str(json).unwrap();
+        let db = JsonBinLoader::parse(json).unwrap();
         let info = db.lookup_str("411111").unwrap();
         assert_eq!(info.issuer, Some("Aliased Bank".to_string()));
         assert_eq!(info.card_type, Some(CardType::Credit));
@@ -300,13 +298,13 @@ mod tests {
 
     #[test]
     fn test_empty_json() {
-        let db = JsonBinLoader::from_str("[]").unwrap();
+        let db = JsonBinLoader::parse("[]").unwrap();
         assert!(db.is_empty());
     }
 
     #[test]
     fn test_invalid_json() {
-        let result = JsonBinLoader::from_str("not valid json");
+        let result = JsonBinLoader::parse("not valid json");
         assert!(result.is_err());
     }
 }

@@ -46,7 +46,7 @@ impl ExpiryDate {
     ///
     /// Returns `None` if the month is invalid (not 1-12).
     pub fn new(month: u8, year: u16) -> Option<Self> {
-        if month < 1 || month > 12 {
+        if !(1..=12).contains(&month) {
             return None;
         }
         Some(Self { month, year })
@@ -96,11 +96,7 @@ impl ExpiryDate {
         let expiry_months = (self.year as u32) * 12 + (self.month as u32);
         let current_months = (current_year as u32) * 12 + (current_month as u32);
 
-        if expiry_months <= current_months {
-            0
-        } else {
-            expiry_months - current_months
-        }
+        expiry_months.saturating_sub(current_months)
     }
 
     /// Formats as MM/YY.
@@ -223,7 +219,7 @@ pub fn parse_expiry(input: &str) -> Result<ExpiryDate, ExpiryError> {
 fn parse_month_year(month_str: &str, year_str: &str) -> Result<ExpiryDate, ExpiryError> {
     let month: u8 = month_str.parse().map_err(|_| ExpiryError::InvalidFormat)?;
 
-    if month < 1 || month > 12 {
+    if !(1..=12).contains(&month) {
         return Err(ExpiryError::InvalidMonth(month));
     }
 

@@ -54,9 +54,9 @@ impl BatchValidator {
     /// # Arguments
     ///
     /// * `cards` - Slice of card number strings to validate.
-    pub fn validate_all<'a, S: AsRef<str>>(
+    pub fn validate_all<S: AsRef<str>>(
         &mut self,
-        cards: &'a [S],
+        cards: &[S],
     ) -> Vec<Result<ValidatedCard, ValidationError>> {
         cards.iter().map(|c| validate(c.as_ref())).collect()
     }
@@ -68,9 +68,9 @@ impl BatchValidator {
     /// # Arguments
     ///
     /// * `cards` - Slice of card number strings to validate.
-    pub fn validate_valid_only<'a, S: AsRef<str>>(
+    pub fn validate_valid_only<S: AsRef<str>>(
         &mut self,
-        cards: &'a [S],
+        cards: &[S],
     ) -> Vec<ValidatedCard> {
         cards
             .iter()
@@ -85,9 +85,9 @@ impl BatchValidator {
     /// # Arguments
     ///
     /// * `cards` - Slice of card number strings to validate.
-    pub fn validate_partitioned<'a, S: AsRef<str>>(
+    pub fn validate_partitioned<S: AsRef<str>>(
         &mut self,
-        cards: &'a [S],
+        cards: &[S],
     ) -> (Vec<ValidatedCard>, Vec<(usize, ValidationError)>) {
         let mut valid = Vec::new();
         let mut invalid = Vec::new();
@@ -115,9 +115,9 @@ impl BatchValidator {
     ///
     /// Requires the `parallel` feature to be enabled.
     #[cfg(feature = "parallel")]
-    pub fn validate_parallel<'a, S: AsRef<str> + Sync>(
+    pub fn validate_parallel<S: AsRef<str> + Sync>(
         &mut self,
-        cards: &'a [S],
+        cards: &[S],
     ) -> Vec<Result<ValidatedCard, ValidationError>> {
         use rayon::prelude::*;
         cards.par_iter().map(|c| validate(c.as_ref())).collect()
@@ -129,9 +129,9 @@ impl BatchValidator {
     ///
     /// Requires the `parallel` feature to be enabled.
     #[cfg(feature = "parallel")]
-    pub fn validate_parallel_valid_only<'a, S: AsRef<str> + Sync>(
+    pub fn validate_parallel_valid_only<S: AsRef<str> + Sync>(
         &mut self,
-        cards: &'a [S],
+        cards: &[S],
     ) -> Vec<ValidatedCard> {
         use rayon::prelude::*;
         cards

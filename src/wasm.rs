@@ -27,8 +27,6 @@
 //! const testCard = generate_test_card("visa");
 //! ```
 
-#![cfg(feature = "wasm")]
-
 use wasm_bindgen::prelude::*;
 
 /// Result of card validation, returned to JavaScript.

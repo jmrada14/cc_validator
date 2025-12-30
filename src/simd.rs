@@ -115,18 +115,32 @@ pub fn validate_batch_simd(cards: &[&[u8]]) -> Vec<bool> {
 }
 
 // Provide stub implementations when SIMD is not enabled
+// These fall back to scalar implementations
+
+/// Validates a 16-digit card number.
+///
+/// This is a stub that falls back to the scalar implementation
+/// when the `simd` feature is not enabled.
 #[cfg(not(feature = "simd"))]
 #[inline]
 pub fn validate_16_simd(digits: &[u8; 16]) -> bool {
     crate::luhn::validate_16(digits)
 }
 
+/// Validates any length card number.
+///
+/// This is a stub that falls back to the scalar implementation
+/// when the `simd` feature is not enabled.
 #[cfg(not(feature = "simd"))]
 #[inline]
 pub fn validate_simd(digits: &[u8]) -> bool {
     crate::luhn::validate(digits)
 }
 
+/// Batch validates multiple card numbers.
+///
+/// This is a stub that falls back to the scalar implementation
+/// when the `simd` feature is not enabled.
 #[cfg(not(feature = "simd"))]
 pub fn validate_batch_simd(cards: &[&[u8]]) -> Vec<bool> {
     cards.iter().map(|digits| crate::luhn::validate(digits)).collect()

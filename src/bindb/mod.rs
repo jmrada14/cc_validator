@@ -176,6 +176,7 @@ impl BinInfo {
 /// Type of payment card.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "bin-json", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Default)]
 pub enum CardType {
     /// Credit card - line of credit from issuer.
     Credit,
@@ -188,6 +189,7 @@ pub enum CardType {
     /// Corporate/Business card.
     Corporate,
     /// Unknown card type.
+    #[default]
     Unknown,
 }
 
@@ -204,15 +206,11 @@ impl fmt::Display for CardType {
     }
 }
 
-impl Default for CardType {
-    fn default() -> Self {
-        Self::Unknown
-    }
-}
 
 /// Card level/tier indicating benefits and status.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "bin-json", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Default)]
 pub enum CardLevel {
     /// Standard/Classic tier.
     Standard,
@@ -231,6 +229,7 @@ pub enum CardLevel {
     /// World/World Elite tier.
     World,
     /// Unknown level.
+    #[default]
     Unknown,
 }
 
@@ -250,11 +249,6 @@ impl fmt::Display for CardLevel {
     }
 }
 
-impl Default for CardLevel {
-    fn default() -> Self {
-        Self::Unknown
-    }
-}
 
 /// A range of BIN numbers.
 ///
