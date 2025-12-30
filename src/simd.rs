@@ -21,17 +21,8 @@
 //! The SIMD implementation processes 16 digits at once, providing
 //! significant speedup for 16+ digit card numbers on supported hardware.
 
-#![cfg(feature = "simd")]
-#![cfg_attr(feature = "simd", feature(portable_simd))]
-
 #[cfg(feature = "simd")]
-use std::simd::{u8x16, Simd, cmp::SimdPartialOrd};
-
-/// Lookup table for doubling digits in SIMD format.
-/// For digit d: if d*2 > 9, result is d*2 - 9, else d*2
-/// This is: [0, 2, 4, 6, 8, 1, 3, 5, 7, 9, 0, 0, 0, 0, 0, 0]
-#[cfg(feature = "simd")]
-const DOUBLE_LUT: [u8; 16] = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9, 0, 0, 0, 0, 0, 0];
+use std::simd::{cmp::SimdPartialOrd, u8x16};
 
 /// Validates a 16-digit card number using SIMD.
 ///
@@ -55,9 +46,9 @@ pub fn validate_16_simd(digits: &[u8; 16]) -> bool {
     let v = u8x16::from_slice(digits);
 
     // Create mask for positions that need doubling
-    // In a 16-digit card, positions 0,2,4,6,8,10,12,14 (from left) get doubled
-    // But Luhn counts from RIGHT, so positions 1,3,5,7,9,11,13,15 from left get doubled
-    let double_mask = u8x16::from_array([0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]);
+    // In a 16-digit card, counting from RIGHT: position 0 is check digit (not doubled),
+    // position 1 is doubled, etc. From LEFT: positions 0,2,4,6,8,10,12,14 get doubled.
+    let double_mask = u8x16::from_array([1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0]);
 
     // Double the appropriate digits
     let doubled = v + v;
@@ -174,7 +165,7 @@ mod tests {
         assert!(validate_simd(&amex));
 
         // 19 digits (Visa)
-        let visa19: [u8; 19] = [4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 7];
+        let visa19: [u8; 19] = [4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0];
         assert!(validate_simd(&visa19));
     }
 

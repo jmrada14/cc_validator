@@ -243,8 +243,10 @@ fn parse_card_level(s: &str) -> CardLevel {
 /// Simple CSV loader without the csv crate dependency.
 ///
 /// Use this for basic CSV files when you want to avoid the csv dependency.
+#[allow(dead_code)]
 pub struct SimpleCsvLoader;
 
+#[allow(dead_code)]
 impl SimpleCsvLoader {
     /// Loads a simple CSV file (comma-delimited, no quotes).
     ///

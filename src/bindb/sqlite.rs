@@ -325,10 +325,6 @@ fn parse_card_level(s: &str) -> CardLevel {
     }
 }
 
-// Ensure thread safety
-unsafe impl Send for SqliteBinDb {}
-unsafe impl Sync for SqliteBinDb {}
-
 #[cfg(test)]
 mod tests {
     use super::*;
